@@ -243,6 +243,9 @@ async function choose(button, value) {
   if (party) await celebrate(party)
   if (problem !== asked) return // they went back and picked something else meanwhile
   if (party && !MODES[mode].tables && choice < LEVELS.length - 1) { choice++; recent.length = 0 }
+  // A table just became strong, or the last level is done: back to the list to pick what's next.
+  // Mixed keeps going (a table filling up mid-mix isn't the end of it).
+  else if (party && choice !== 'mixed') return show('pick')
   next()
 }
 
