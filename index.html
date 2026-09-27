@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Math practice</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <button class="icon" id="back" aria-label="Back" hidden>←</button>
+    <div class="who" id="who"></div>
+    <div class="stars" id="stars" aria-live="polite"></div>
+    <button class="icon" id="mute" aria-label="Sound on" aria-pressed="false">🔔</button>
+  </header>
+  <main>
+    <!-- Start: pick what to practice. The tap also lets the page speak. -->
+    <section class="screen" id="menu" hidden>
+      <h1>What shall we practice?</h1>
+      <div class="modes" id="modes"></div>
+    </section>
+    <!-- Pick a level (adding, taking away) or a table (times, dividing). -->
+    <section class="screen" id="pick" hidden>
+      <h1 id="pick-title"></h1>
+      <div class="picks" id="picks"></div>
+      <p class="dim" id="pick-note"></p>
+    </section>
+    <section class="screen" id="play" hidden>
+      <div class="problem">
+        <p class="sum" id="sum"></p>
+        <button class="icon say" id="say" aria-label="Read the problem">🔊</button>
+      </div>
+      <div class="dots" id="dots" aria-hidden="true"></div>
+      <div class="choices" id="choices" aria-label="Answers"></div>
+      <p class="praise" id="praise" aria-live="polite"></p>
+      <p class="dim" id="level"></p>
+    </section>
+  </main>
+  <div class="party" id="party" hidden><div class="party-card"><div class="party-emoji">🎉</div><p id="party-text"></p></div></div>
+  <!-- Classic scripts only (see Limits in the hello-world README). kinwall.js first. -->
+  <script src="kinwall.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
