@@ -10,12 +10,11 @@ const LEVELS = [
   { max: 20, lo: 10, part: 2 },
   { max: 100, lo: 20, part: 5 },
 ]
-const TABLES = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 const MODES = {
   add: { name: 'Adding', sign: '+', levelName: max => `Sums up to ${max}` },
   sub: { name: 'Taking away', sign: '−', levelName: max => `Numbers up to ${max}` },
-  mul: { name: 'Times tables', sign: '×', tables: true },
-  div: { name: 'Dividing', sign: '÷', tables: true },
+  mul: { name: 'Times tables', sign: '×', tables: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] },
+  div: { name: 'Dividing', sign: '÷', tables: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] },
 }
 const PRAISE = ['Yes!', 'Great job!', 'You got it!', 'Nice work!', 'Awesome!', "That's right!", 'Super!', 'Well done!', 'Way to go!', 'Brilliant!']
 const AGAIN = ['Almost! Try again.', 'Have another go!', 'Not quite. Try again!', 'Keep trying!']
@@ -104,8 +103,8 @@ function pickFrom(list) {
 }
 
 const currentLevel = m => { const i = progress[m].findIndex(s => s < STARS); return i < 0 ? LEVELS.length - 1 : i }
-const practiced = m => TABLES.filter(t => progress[m][t] > 0)
-const strong = m => TABLES.filter(t => progress[m][t] >= STARS)
+const practiced = m => MODES[m].tables.filter(t => progress[m][t] > 0)
+const strong = m => MODES[m].tables.filter(t => progress[m][t] >= STARS)
 
 // ---- Problems ----
 
@@ -120,11 +119,12 @@ function makeProblem() {
       : { a: s, b: a, answer: b, text: `${s} − ${a}`, speak: `${s} minus ${a}` }
   }
   const t = choice === 'mixed' ? anyOf(practiced(mode)) : choice
-  const k = rand(1, 12)
   if (mode === 'mul') {
+    const k = rand(0, 12)
     const [a, b] = Math.random() < 0.5 ? [t, k] : [k, t]
     return { t, k, a, b, answer: t * k, text: `${a} × ${b}`, speak: `${a} times ${b}` }
   }
+  const k = rand(1, 12)
   return { t, k, a: t * k, b: t, answer: k, text: `${t * k} ÷ ${t}`, speak: `${t * k} divided by ${t}` }
 }
 
@@ -281,7 +281,7 @@ function renderMenu() {
     const b = document.createElement('button')
     b.className = 'mode'
     const note = m.tables
-      ? (strong(id).length ? `${strong(id).length} of 12 strong` : practiced(id).length ? `${practiced(id).length} practiced` : 'Pick a table')
+      ? (strong(id).length ? `${strong(id).length} of ${m.tables.length} strong` : practiced(id).length ? `${practiced(id).length} practiced` : 'Pick a table')
       : `Level ${currentLevel(id) + 1} of ${LEVELS.length}`
     b.innerHTML = `<span class="mode-sign">${m.sign}</span><span class="mode-name">${m.name}</span><span class="dim">${note}</span>`
     b.onclick = () => { mode = id; if (speech) pickVoice(); show('pick') }
@@ -304,7 +304,7 @@ function renderPick() {
     box.append(b)
   }
   if (m.tables) {
-    for (const t of TABLES) {
+    for (const t of m.tables) {
       const s = progress[mode][t] || 0
       add(`<span class="num">${t}</span><span class="fill" style="--fill:${s / STARS}"></span>${s >= STARS ? '<span class="badge">⭐</span>' : ''}`,
         s >= STARS ? 'strong' : '', t)
