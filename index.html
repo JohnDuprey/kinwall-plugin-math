@@ -35,10 +35,92 @@
       <p class="praise" id="praise" aria-live="polite"></p>
       <p class="dim" id="level"></p>
     </section>
+    <!-- My facts: this week's multiplication facts, practiced four ways. -->
+    <section class="screen" id="facts" hidden>
+      <h1>My facts</h1>
+      <p class="plan-line" id="plan-line"></p>
+      <div class="ways" id="ways"></div>
+      <p class="dim" id="facts-note"></p>
+      <button class="grownups" id="grownups">For grown-ups</button>
+    </section>
+    <section class="screen" id="cards" hidden>
+      <button class="card" id="card" aria-live="polite"></button>
+      <div class="card-btns" id="card-btns">
+        <button class="big good" id="got">✓ Got it</button>
+        <button class="big" id="notyet">↻ Not yet</button>
+      </div>
+      <p class="praise" id="card-note" aria-live="polite"></p>
+      <button class="icon say" id="card-say" aria-label="Read the fact">🔊</button>
+    </section>
+    <section class="screen" id="skip" hidden>
+      <h1 id="skip-title"></h1>
+      <div class="chips" id="skip-tables" aria-label="Count by"></div>
+      <ol class="trail" id="trail" aria-label="Counting so far"></ol>
+      <div class="choices three" id="skip-choices" aria-label="What comes next?"></div>
+      <p class="praise" id="skip-note" aria-live="polite"></p>
+      <button class="icon say" id="skip-say" aria-label="Read the counting">🔊</button>
+    </section>
+    <section class="screen" id="chart" hidden>
+      <h1>My fact chart</h1>
+      <p class="legend"><span class="mark strong">★</span> strong <span class="mark learning">●</span> practicing <span class="mark new">○</span> not yet</p>
+      <div class="chart-wrap"><table class="chart" id="chart-table"></table></div>
+      <p class="dim">Tap a fact to practice it.</p>
+    </section>
+    <section class="screen" id="quiz" hidden>
+      <div class="quiz-intro" id="quiz-intro">
+        <h1>Practice quiz</h1>
+        <p class="lead" id="quiz-about"></p>
+        <p class="dim" id="quiz-best"></p>
+        <button class="big good" id="quiz-start">Start</button>
+      </div>
+      <div class="quiz-run" id="quiz-run" hidden>
+        <p class="dim quiz-status"><span id="quiz-count"></span> · <span id="quiz-clock" aria-hidden="true"></span></p>
+        <p class="sum" id="quiz-sum"></p>
+        <p class="praise" id="quiz-note" aria-live="polite"></p>
+        <div class="keypad" id="keypad" aria-label="Number pad"></div>
+      </div>
+      <div class="quiz-done" id="quiz-done" hidden>
+        <h1 id="quiz-done-title"></h1>
+        <p class="lead" id="quiz-done-time"></p>
+        <p class="lead" id="quiz-done-right"></p>
+        <div id="quiz-next"></div>
+        <div class="row">
+          <button class="big good" id="quiz-practice">Practice these</button>
+          <button class="big" id="quiz-again">Try again</button>
+        </div>
+      </div>
+    </section>
+    <!-- No grown-up signal in the SDK, so a simple confirm keeps casual taps out. -->
+    <section class="screen" id="grown" hidden>
+      <div class="grown-ask" id="grown-ask">
+        <h1>For grown-ups</h1>
+        <p class="lead">Here a grown-up picks which multiplication facts to practice each week.</p>
+        <div class="row">
+          <button class="big good" id="grown-yes">I'm a grown-up</button>
+          <button class="big" id="grown-no">Go back</button>
+        </div>
+      </div>
+      <div class="grown-set" id="grown-set" hidden>
+        <h1>Weekly facts</h1>
+        <p class="dim" id="grown-who"></p>
+        <h2 id="h-now">This week's new facts</h2>
+        <div class="chips" id="now-chips" aria-labelledby="h-now"></div>
+        <h2 id="h-before">Already learned</h2>
+        <div class="chips" id="before-chips" aria-labelledby="h-before"></div>
+        <button class="big" id="next-week"></button>
+        <h2 id="h-mix">Practice</h2>
+        <div class="chips wide" id="mix-chips" aria-labelledby="h-mix"></div>
+        <h2 id="h-quiz">Practice quiz</h2>
+        <p class="dim">20 facts from every set so far, like the school's fact quiz. It shows how long it took and compares only with the child's own best. Nothing to fail.</p>
+        <div class="chips wide" id="quiz-chips" aria-labelledby="h-quiz"></div>
+        <button class="big good" id="grown-done">Done</button>
+      </div>
+    </section>
   </main>
   <div class="party" id="party" hidden><div class="party-card"><div class="party-emoji">🎉</div><p id="party-text"></p></div></div>
   <!-- Classic scripts only (see Limits in the hello-world README). kinwall.js first. -->
   <script src="kinwall.js"></script>
+  <script src="facts.js"></script>
   <script src="game.js"></script>
 </body>
 </html>
