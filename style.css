@@ -111,7 +111,7 @@ h2 { margin: 6px 0 0; font-size: 1.3rem; }
 .chart th { min-width: 0; padding: 0 2px; font-size: clamp(0.7rem, calc(var(--cell) * 0.42), 1.1rem); line-height: 1.1; color: var(--kw-dim); }
 .chart th.now { color: var(--kw-accent); text-decoration: underline 3px; }
 .chart td { padding: 0; }
-.cell { display: block; width: var(--cell); height: var(--cell); padding: 0; border-radius: calc(var(--cell) * 0.22); border: 2px solid var(--kw-border); background: var(--kw-card); font-size: calc(var(--cell) * 0.45); line-height: 1; color: var(--kw-dim); }
+.cell { display: block; width: var(--cell-w, var(--cell)); height: var(--cell); padding: 0; border-radius: calc(var(--cell) * 0.22); border: 2px solid var(--kw-border); background: var(--kw-card); font-size: calc(var(--cell) * 0.45); line-height: 1; color: var(--kw-dim); }
 .cell.strong { background: var(--good-bg); border-color: var(--good-border); }
 .cell.learning { color: var(--kw-text); border-color: var(--kw-dim); }
 .cell.off { background: transparent; border-style: dotted; }
@@ -183,10 +183,15 @@ h2 { margin: 6px 0 0; font-size: 1.3rem; }
 
 /* Side by side when the screen is wider than tall: the fact chart gets the whole height. */
 @media (orientation: landscape) {
-  #chart { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-content: center; align-items: center; column-gap: 24px; row-gap: 12px; }
-  #chart > :not(.chart-wrap) { grid-column: 1; }
-  #chart .chart-wrap { grid-column: 2; grid-row: 1 / span 3; width: auto; }
-  #chart { --cell: clamp(16px, min((100vh - 112px) / 13.5, (100vw - 300px) / 14) - 2px, 52px); }
+  /* The title, key and hint stack in a narrow column on the left, and the grid takes the rest of the
+     width: when the height is what limits the rows, cells grow wider instead (bigger to tap). */
+  #chart { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); align-content: center; align-items: center; column-gap: 16px; row-gap: 10px; }
+  #chart > :not(.chart-wrap) { grid-column: 1; text-align: left; }
+  #chart h1 { font-size: 1.3rem; }
+  #chart .legend { display: grid; grid-template-columns: auto 1fr; justify-items: start; gap: 4px 8px; }
+  #chart .legend .mark { margin-left: 0; }
+  #chart .chart-wrap { grid-column: 2; grid-row: 1 / span 3; width: 100%; }
+  #chart { --cell: clamp(16px, min((100vh - 112px) / 13.5, (100vw - 300px) / 14) - 2px, 52px); --cell-w: clamp(var(--cell), (min(100vw - 32px, 1000px) - 8.5rem - 40px) / 14 - 4px, 80px); }
 }
 
 /* Short: a tablet or phone on its side. Smaller header, and each screen in fewer rows. */
