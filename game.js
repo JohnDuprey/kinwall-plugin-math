@@ -72,10 +72,13 @@ function pickVoice() {
   voice = english.sort((a, b) => score(b) - score(a))[0] || null
 }
 if (speech) { pickVoice(); if (speech.addEventListener) speech.addEventListener('voiceschanged', pickVoice) }
+// No Web Speech here (Android's WebView): Kinwall speaks instead, when it can (Kinwall.speak).
+let kinwallSpeaks = false
+const canSay = () => !!speech || kinwallSpeaks
 let speaking = null
 let turn = 0
 async function say(text, rate = 0.85) {
-  if (!speech) return
+  if (!speech) { if (kinwallSpeaks) await Kinwall.speak(text, { rate }); return }
   const mine = ++turn
   if (speech.speaking || speech.pending) {
     speech.cancel()
@@ -278,6 +281,7 @@ function celebrate(text) {
 
 // ---- Screens ----
 
+let grownUp // Kinwall.ready()'s parent flag
 const SCREENS = ['menu', 'pick', 'play', 'facts', 'cards', 'skip', 'chart', 'quiz', 'grown']
 function show(name) {
   if (screen === 'quiz' && name !== 'quiz') stopClock()
@@ -290,7 +294,8 @@ function show(name) {
   if (name === 'facts') renderFacts()
   if (name === 'chart') renderChart()
   if (name === 'quiz') quizIntro()
-  if (name === 'grown') { el('grown-ask').hidden = false; el('grown-set').hidden = true }
+  // A parent's device goes straight to the settings; older Kinwall (no signal) asks first.
+  if (name === 'grown') { el('grown-ask').hidden = grownUp === true; el('grown-set').hidden = grownUp !== true; if (grownUp === true) renderGrown() }
   window.scrollTo(0, 0)
 }
 
@@ -370,7 +375,7 @@ function renderMute() {
 
 el('mute').onclick = () => {
   progress.muted = !progress.muted
-  if (progress.muted && speech) speech.cancel()
+  if (progress.muted) { if (speech) speech.cancel(); else if (kinwallSpeaks) Kinwall.stopSpeaking() }
   renderMute()
   persist()
 }
@@ -724,6 +729,9 @@ el('back').onclick = () => show(screen === 'play' ? (mode === 'facts' ? 'facts' 
 let who = null
 Kinwall.ready().then(async ctx => {
   who = ctx.member
+  kinwallSpeaks = !speech && !!ctx.canSpeak
+  grownUp = ctx.parent // true on a parent's device, false on wall screens and kids' devices, undefined on older Kinwall
+  el('grownups').hidden = grownUp === false
   el('who').textContent = ctx.member ? `${ctx.member.avatar || ''} ${ctx.member.name}` : ''
   if (ctx.reducedMotion) document.documentElement.dataset.reducedMotion = ''
   const saved = await Kinwall.load().catch(() => ({}))
@@ -732,7 +740,7 @@ Kinwall.ready().then(async ctx => {
     progress = { ...progress, ...p, mul: { ...p.mul }, div: { ...p.div }, facts: { ...p.facts }, plan: Facts.cleanPlan(p.plan), quiz: { best: {}, ...p.quiz } }
     for (const m of ['add', 'sub']) progress[m] = LEVELS.map((_, i) => (p[m] && p[m][i]) || 0)
   }
-  el('say').hidden = !speech
+  el('say').hidden = !canSay()
   renderMute()
   show('menu')
   el('modes').firstChild.focus()

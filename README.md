@@ -19,7 +19,8 @@ Made for the usual 4th-grade plan: the class adds one set of facts each week (0 
 - **Fact chart:** every fact from 0 × 0 to 12 × 12, marked ★ strong, ● practicing or ○ not yet (a mark as well as a color). Tap one to practice it.
 - **Practice quiz** (off until a grown-up turns it on): 20 facts from every set so far, like the school quiz, typed on a number pad. A small clock counts up and the child is compared only with their own best time. There's nothing to fail: a missed fact just shows its answer, and the end lists the facts to practice next, with retakes any time.
 - **Strong facts:** a fact is strong when it was answered right within 4 seconds the last 3 times. Each fact's last 5 answers and times are saved for the child.
-- **For grown-ups:** Kinwall doesn't tell a plugin whether a grown-up is playing, so the plan sits behind a **For grown-ups** button with a simple "I'm a grown-up" confirm. It keeps casual taps out; it isn't a lock.
+- **For grown-ups:** the plan sits behind a **For grown-ups** button. On a parent's phone or computer it opens straight to the plan; wall screens and kids' devices don't show it (Kinwall tells the plugin which it is). On an older Kinwall without that signal, a simple "I'm a grown-up" confirm keeps casual taps out; it isn't a lock.
+- **Spoken in the Android app too:** where the page can't speak (Android's WebView), Kinwall says the problems with the device's voice.
 
 ## Install
 
