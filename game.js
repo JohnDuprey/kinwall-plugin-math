@@ -98,6 +98,28 @@ async function say(text, rate = 0.85) {
     speech.speak(u)
   })
 }
+// ---- Cooldowns ----
+// Each 🔊 rests until it's said plus REPLAY_REST, and after a wrong answer the answer buttons rest
+// for MISS_REST (the quiz's keypad for its own 1.8 s), so nobody spams sound or guesses at random.
+// Resting controls are dimmed, keep focus (aria-disabled, not disabled) and ignore presses:
+// handlers check resting().
+const REPLAY_REST = 1500
+const MISS_REST = 1600
+const resting = b => !!b && b.classList.contains('resting')
+const restGen = new WeakMap() // button -> the latest rest, so an older one never ends a newer one early
+function rest(buttons, ms) {
+  const g = {}
+  for (const b of buttons) { restGen.set(b, g); b.classList.add('resting'); b.setAttribute('aria-disabled', 'true') }
+  if (ms != null) setTimeout(() => { for (const b of buttons) if (restGen.get(b) === g) { b.classList.remove('resting'); b.removeAttribute('aria-disabled') } }, ms)
+  return g
+}
+async function restWhile(buttons, promise, after = REPLAY_REST) {
+  const g = rest(buttons)
+  await promise
+  rest(buttons.filter(b => restGen.get(b) === g), after)
+}
+const sayFrom = (button, text) => { if (!resting(button)) restWhile([button], say(text, 0.75)) } // a tap asks for it, so it speaks even when muted
+
 /** Praise and encouragement: spoken unless this child turned sound off. */
 const cheer = text => progress.muted ? Promise.resolve() : say(text)
 
@@ -229,7 +251,7 @@ function addStar() {
 }
 
 async function choose(button, value) {
-  if (locked) return
+  if (locked || resting(button)) return
   progress.answers++
   if (value !== problem.answer) {
     if (mode === 'facts' && !tried) Facts.record(progress.facts, problem.key, false, 0)
@@ -239,6 +261,7 @@ async function choose(button, value) {
     el('praise').textContent = again
     persist()
     cheer(again)
+    rest([...el('choices').children], MISS_REST)
     return
   }
   locked = true
@@ -379,7 +402,7 @@ el('mute').onclick = () => {
   renderMute()
   persist()
 }
-el('say').onclick = () => { if (problem) say(problem.speak, 0.75) } // a tap asks for it, so it speaks even when muted
+el('say').onclick = () => { if (problem) sayFrom(el('say'), problem.speak) }
 // ---- My facts: the weekly multiplication facts ----
 
 const plan = () => progress.plan
@@ -475,7 +498,7 @@ function cardDone(knew) {
 }
 el('got').onclick = () => cardDone(true)
 el('notyet').onclick = () => cardDone(false)
-el('card-say').onclick = () => { if (card) say(`${card.a} times ${card.b}`, 0.75) }
+el('card-say').onclick = () => { if (card) sayFrom(el('card-say'), `${card.a} times ${card.b}`) }
 
 // Skip counting: 4, 8, 12, 16… the child taps what comes next, up to 12 of them.
 let skipBy = 0
@@ -520,7 +543,7 @@ function renderSkip() {
   }
 }
 async function skipChoose(button, v, n) {
-  if (skipLocked) return
+  if (skipLocked || resting(button)) return
   progress.answers++
   persist()
   if (v !== n) {
@@ -528,6 +551,7 @@ async function skipChoose(button, v, n) {
     const again = pickFrom(AGAIN)
     el('skip-note').textContent = again
     cheer(again)
+    rest([...el('skip-choices').children], MISS_REST)
     return
   }
   skipLocked = true
@@ -542,7 +566,7 @@ async function skipChoose(button, v, n) {
 el('skip-say').onclick = () => {
   const said = []
   for (let i = Math.max(1, skipStep - 2); i <= skipStep; i++) said.push(i * skipBy)
-  say(said.length ? `${said.join(', ')}. What comes next?` : `Count by ${skipBy}s. What comes first?`, 0.75)
+  sayFrom(el('skip-say'), said.length ? `${said.join(', ')}. What comes next?` : `Count by ${skipBy}s. What comes first?`)
 }
 
 // Fact chart: 0-12 by 0-12. A mark and a color show each fact's status; tapping one practices it.
@@ -633,7 +657,7 @@ async function quizSubmit() {
   progress.answers++
   persist()
   if (right) { quiz.right++; el('quiz-note').textContent = '✓' }
-  else { quiz.misses.push(k); quizRender(true); el('quiz-note').textContent = 'We’ll practice that one.' }
+  else { quiz.misses.push(k); quizRender(true); el('quiz-note').textContent = 'We’ll practice that one.'; rest([...el('keypad').children], 1800) }
   await sleep(right ? 500 : 1800)
   if (!quiz || screen !== 'quiz') return
   if (++quiz.i < quiz.keys.length) return quizShow()

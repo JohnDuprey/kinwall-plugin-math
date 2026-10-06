@@ -4,7 +4,9 @@ A math game for [Kinwall](https://github.com/JohnDuprey/kinwall), for ages 5 to 
 
 - **Five ways in:** My facts (below), adding and taking away (four levels each: numbers up to 5, 10, 20 and 100), times tables (0 to 12, or mixed from the tables a child has practiced) and dividing (whole-number answers only).
 - **Big answer buttons** with believable wrong answers, and countable pictures under the early adding and taking-away problems.
-- **Kind by design:** no countdowns, no losing and no red X. A wrong tap gently shakes that button, and the child tries again.
+- **Kind by design:** no countdowns, no losing and no red X. A wrong tap gently shakes that button, and the child tries again once the answers come back from a short rest (they dim for about 1.5 seconds, so guessing at random doesn't pay). In the quiz, the number pad rests while the missed fact's answer shows.
+- **No spamming 🔊:** each 🔊 button rests (dimmed) while it speaks and for 1.5 seconds after.
+- **No zooming:** pinch and double-tap zoom are off, so a child can't zoom in and get lost. Text follows Kinwall's text size instead.
 - **Stars and levels:** ten right the first time moves up a level, or makes a table "strong", with a celebration. The table picker shows how strong each table is.
 - **Speech:** a 🔊 button reads the problem aloud, and praise is spoken too. Each child can turn spoken praise off with the 🔔 button.
 

@@ -34,6 +34,8 @@ Kinwall.close()                             // back to Activities
 - **Encouraging.** Vary the praise, never shame, no stressful timers, nothing to buy, no links out.
 - **Reduced motion.** When `ctx.reducedMotion` is true, skip animations. Keep a visible focus outline.
 - **Save progress as it happens,** and restore it on `ready()`.
+- **No zooming.** Keep `maximum-scale=1, user-scalable=no` in the viewport and `touch-action: pan-x pan-y` on `html, body`; follow `ctx.textScale` for text size.
+- **Cooldowns.** Each 🔊 (`say`, `card-say`, `skip-say`) rests until the speech ends + `REPLAY_REST` (1.5 s) via `sayFrom()`; a wrong choice rests the choices for `MISS_REST` (1.6 s), a quiz miss rests the keypad 1.8 s. Resting = `.resting` + `aria-disabled` (focus stays); handlers check `resting()`.
 - **Fit any screen** from a 393 px phone to a wall display, and keep contrast readable in both themes.
 
 ## Files and workflow

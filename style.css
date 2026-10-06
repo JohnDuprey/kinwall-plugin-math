@@ -6,7 +6,7 @@
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
-html, body { margin: 0; min-height: 100%; background: var(--kw-bg); color: var(--kw-text); font-family: var(--kw-font); }
+html, body { touch-action: pan-x pan-y; margin: 0; min-height: 100%; background: var(--kw-bg); color: var(--kw-text); font-family: var(--kw-font); }
 button { font: inherit; font-weight: 800; color: var(--kw-text); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 button:focus-visible { outline: 3px solid var(--kw-text); outline-offset: 3px; }
 .dim { color: var(--kw-dim); font-weight: 700; }
@@ -71,6 +71,9 @@ h2 { margin: 6px 0 0; font-size: 1.3rem; }
 .big { min-height: 72px; min-width: 160px; padding: 12px 26px; border-radius: 24px; border: 3px solid var(--kw-border); background: var(--kw-card); font-size: 1.5rem; }
 .big.good { border-color: var(--kw-accent); background: var(--kw-accent); color: var(--kw-accent-ink); }
 .big:disabled, .chip:disabled { opacity: 0.45; cursor: default; }
+/* Resting (a cooldown, game.js): 🔊 while it speaks, answers just after a miss. Dimmed, not gone. */
+.resting { opacity: 0.45; cursor: default; transition: opacity 0.2s; }
+.resting:active { transform: none; filter: none; }
 .ways { width: 100%; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
 .way { min-height: 150px; justify-content: center; }
 .way-icon { font-size: 3.4rem; line-height: 1; }

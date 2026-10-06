@@ -13,9 +13,25 @@
 //   await Kinwall.speak('friend', { rate: 0.8, lang: 'en-US' })   // Kinwall says it; resolves when done
 //   Kinwall.stopSpeaking()
 //   Kinwall.close()                      // back to the Activities page
+//   const todo = await Kinwall.actions() // requests other apps sent for this person (your manifest's
+//                                        //   "actions"), oldest first: [{ id, action, input, createdAt }];
+//                                        //   { shared: true } for the family's; [] on older Kinwall
+//   await Kinwall.done(todo[0].id)       // applied (or dropped): Kinwall deletes it
+//   Kinwall.onActions(() => { ... })     // something changed while open: call actions() again
+//
+// Actions come from outside the plugin: check each input yourself, and apply it so that doing it
+// twice changes nothing more (if done() fails, it comes back next time).
 //
 // Speech: use the page's own speechSynthesis when it has one (more control over voices); Android's
 // WebView has none, so there use Kinwall.speak when ctx.canSpeak is true.
+//
+// Play time: a family can make a chore of your activity ("10 min of Spelling"). Kinwall counts it in
+// 15-second steps, each only with play in it, so this file passes on real taps and key presses in
+// your page: just "something happened" ({ type: 'active' }), at most once every 3 seconds, never
+// what or where. Saves and Kinwall.speak() count too.
+//
+// No zooming: pinch zoom is stopped here for Safari, which ignores user-scalable=no; keep
+// "maximum-scale=1, user-scalable=no" in your viewport and touch-action: pan-x pan-y on <html>.
 //
 // The theme is also applied as CSS variables on <html>: --kw-bg, --kw-card, --kw-text, --kw-dim,
 // --kw-accent, --kw-accent-ink (text on the accent color), --kw-border, --kw-font, plus
@@ -25,6 +41,7 @@
   const pending = new Map()
   let gotContext
   const context = new Promise(resolve => { gotContext = resolve })
+  const onActions = []
 
   window.addEventListener('message', e => {
     if (e.source !== window.parent) return
@@ -38,6 +55,7 @@
       gotContext(m.context)
       return
     }
+    if (m.type === 'actions') { onActions.forEach(f => { try { f() } catch (err) { console.error(err) } }); return }
     const p = pending.get(m.re)
     if (!p) return
     pending.delete(m.re)
@@ -51,6 +69,21 @@
     pending.set(id, { resolve, reject })
     send({ id, type, ...payload })
   })
+
+  // Real taps and keys only (isTrusted), one message per 3 s: one that comes too soon is sent when
+  // the 3 s are up, so a tap is never lost, only late.
+  let lastActive = 0
+  let queued = false
+  const active = e => {
+    if (!e.isTrusted || queued) return
+    const wait = lastActive + 3000 - Date.now()
+    const go = () => { queued = false; lastActive = Date.now(); send({ type: 'active' }) }
+    if (wait <= 0) go()
+    else { queued = true; setTimeout(go, wait) }
+  }
+  window.addEventListener('pointerdown', active, true)
+  window.addEventListener('keydown', active, true)
+  document.addEventListener('gesturestart', e => e.preventDefault()) // Safari's pinch zoom
 
   window.Kinwall = {
     ready() { send({ type: 'ready' }); return context },
@@ -66,6 +99,16 @@
       })
     },
     stopSpeaking() { send({ type: 'stopSpeaking' }) },
+    // Never rejects: [] when there's nothing, when offline (they wait for next time), or after a few
+    // seconds on an older Kinwall that doesn't answer.
+    actions(opts) {
+      return new Promise(resolve => {
+        const t = setTimeout(() => resolve([]), 5000)
+        call('actions', { shared: !!(opts && opts.shared) }).then(list => (Array.isArray(list) ? list : []), () => []).then(list => { clearTimeout(t); resolve(list) })
+      })
+    },
+    done(id) { return call('done', { item: String(id) }) },
+    onActions(callback) { if (typeof callback === 'function') onActions.push(callback) },
     close() { send({ type: 'close' }) },
   }
 })()
