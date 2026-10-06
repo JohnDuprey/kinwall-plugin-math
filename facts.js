@@ -41,11 +41,16 @@
     return out
   }
 
-  /** 'new' (never tried), 'learning', or 'strong' (right and quick the last 3 times). */
+  /** 'new' (never tried), 'learning', or 'strong': right and quick 3 times in a row, and not missed
+   *  since. Once strong, a slow answer doesn't take it away (a pause or a distraction isn't
+   *  forgetting); a miss does. The run has to be among the last KEEP answers. */
   function status(results) {
     if (!results || !results.length) return 'new'
-    const last = results.slice(-STRONG_RUN)
-    return last.length === STRONG_RUN && last.every(r => r > 0 && r * 100 <= FAST_MS) ? 'strong' : 'learning'
+    const quick = r => r > 0 && r * 100 <= FAST_MS
+    for (let end = results.length; end >= STRONG_RUN; end--) {
+      if (results.slice(end - STRONG_RUN, end).every(quick)) return results.slice(end).includes(0) ? 'learning' : 'strong'
+    }
+    return 'learning'
   }
 
   /** Adds one result to `stats` (changed in place) and returns the fact's new status. */

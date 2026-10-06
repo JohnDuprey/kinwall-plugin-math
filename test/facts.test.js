@@ -23,16 +23,21 @@ test('cleanPlan repairs bad saves and keeps a table out of both lists', () => {
   assert.deepEqual(F.cleanPlan({ now: [3, 3, 99, 'x'], before: [3, 2], mix: false, quiz: true }), { now: [3], before: [2], mix: false, quiz: true })
 })
 
-test('strong means right and quick the last 3 times', () => {
+test('strong: right and quick 3 times in a row, kept through slow answers, lost on a miss', () => {
   const s = {}
   assert.equal(F.status(s['7x8']), 'new')
   F.record(s, '7x8', true, 2000)
-  F.record(s, '7x8', true, 2500)
+  assert.equal(F.record(s, '7x8', true, 9000), 'learning') // right but slow doesn't build the run
+  F.record(s, '7x8', true, 2000); F.record(s, '7x8', true, 2500)
   assert.equal(F.record(s, '7x8', true, 3000), 'strong')
-  assert.equal(F.record(s, '7x8', false, 0), 'learning') // a miss resets it
+  assert.equal(F.record(s, '7x8', true, 9000), 'strong') // a slow answer keeps it strong
+  assert.equal(F.record(s, '7x8', false, 0), 'learning') // a miss takes it away
   F.record(s, '7x8', true, 1000); F.record(s, '7x8', true, 1000)
-  assert.equal(F.record(s, '7x8', true, 9000), 'learning') // right but slow
+  assert.equal(F.record(s, '7x8', true, 1000), 'strong') // three quick in a row again
   assert.equal(s['7x8'].length, 5) // only the last 5 are kept
+  // Slow answers until the quick run falls out of the last 5: practicing again.
+  for (let i = 0; i < 3; i++) F.record(s, '7x8', true, 9000)
+  assert.equal(F.status(s['7x8']), 'learning')
 })
 
 test('weights favor the new set, misses and slow answers; strong facts fade', () => {

@@ -1,7 +1,7 @@
 {
   "id": "math",
   "name": "Math practice",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Adding, taking away, times tables 0 to 12 and dividing, plus My facts: a weekly multiplication-facts plan with a game, flashcards, skip counting, a fact chart and an optional practice quiz. Big buttons, no losing, progress saved for each child.",
   "entry": "index.html",
   "emoji": "🔢",
